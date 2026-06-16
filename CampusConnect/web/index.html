@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusConnect | Centralized Student Discovery Hub</title>
+  <meta name="description" content="Discover events, communities, internships, competitions, and opportunities from one centralized, real-time platform." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ================= AUTH OVERLAY ================= -->
+  <div class="auth-overlay" id="auth-screen-overlay">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="logo-icon">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <h2>CampusConnect</h2>
+        <p>Your centralized university opportunities center</p>
+      </div>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="auth-signin-tab">Sign In</button>
+        <button class="auth-tab-btn" id="auth-signup-tab">Create Account</button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form class="auth-form" id="signin-form">
+        <div class="form-group">
+          <label for="signin-username">Username or Email</label>
+          <input type="text" id="signin-username" placeholder="e.g. snehanair" required />
+        </div>
+        <div class="form-group">
+          <label for="signin-password">Password</label>
+          <input type="password" id="signin-password" placeholder="••••••••" required />
+        </div>
+        <div class="auth-error-alert" id="signin-error" style="display: none;"></div>
+        <button type="submit" class="btn btn-primary btn-full">
+          <i data-lucide="log-in"></i>
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form class="auth-form" id="signup-form" style="display: none;">
+        <div class="form-group">
+          <label for="signup-username">Username *</label>
+          <input type="text" id="signup-username" placeholder="e.g. ayushg" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Campus Email *</label>
+          <input type="email" id="signup-email" placeholder="e.g. ayush@campus.edu" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password *</label>
+          <input type="password" id="signup-password" placeholder="••••••••" required />
+        </div>
+        <div class="auth-error-alert" id="signup-error" style="display: none;"></div>
+        <button type="submit" class="btn btn-primary btn-full">
+          <i data-lucide="user-plus"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Shell App Layout -->
+  <div class="app-layout" id="app-main-layout" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar-nav">
+      <div class="sidebar-brand">
+        <div class="logo-icon">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <span class="brand-text">CampusConnect</span>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="dashboard" id="nav-dashboard-btn">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="discover" id="nav-discover-btn">
+          <i data-lucide="compass"></i>
+          <span>Discover</span>
+        </button>
+        <button class="nav-item" data-tab="communities" id="nav-communities-btn">
+          <i data-lucide="users"></i>
+          <span>Communities</span>
+        </button>
+        <button class="nav-item" data-tab="ai-guide" id="nav-ai-guide-btn">
+          <i data-lucide="sparkles"></i>
+          <span>AI Guide</span>
+        </button>
+        <button class="nav-item" data-tab="leaderboard" id="nav-leaderboard-btn">
+          <i data-lucide="trophy"></i>
+          <span>Leaderboard</span>
+        </button>
+        <button class="nav-item" data-tab="saved" id="nav-saved-btn">
+          <i data-lucide="bookmark"></i>
+          <span>My Space</span>
+        </button>
+        <button class="nav-item" data-tab="admin" id="nav-admin-btn">
+          <i data-lucide="terminal"></i>
+          <span>Admin Hub</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar-wrapper">
+            <div class="avatar-ring"></div>
+            <div class="user-avatar-placeholder" id="user-avatar-initials">A</div>
+            <span class="online-indicator"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name" id="profile-display-name">Ayush Gupta</span>
+            <span class="user-role" id="profile-display-role">Student Explorer</span>
+          </div>
+        </div>
+        <button class="logout-btn" id="logout-action-btn">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+      <!-- Top Action Bar -->
+      <header class="topbar">
+        <div class="welcome-banner">
+          <h1 id="dynamic-greeting">Good Morning!</h1>
+          <p class="subtitle">Ready to explore what's happening on campus today?</p>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Real-Time Activity Banner Ticker -->
+          <div class="live-activity-banner" id="live-activity-banner">
+            <span class="live-pulse"></span>
+            <span class="banner-text" id="live-banner-text">Loading campus updates...</span>
+          </div>
+
+          <!-- Notification Center -->
+          <div class="notification-dropdown-container">
+            <button class="icon-btn" id="notification-btn" aria-label="Notifications">
+              <i data-lucide="bell"></i>
+              <span class="notification-badge" id="notification-count">0</span>
+            </button>
+            <div class="notification-dropdown" id="notification-dropdown-menu">
+              <div class="dropdown-header">
+                <h3>Notifications</h3>
+                <button class="clear-btn" id="clear-notifications-btn">Clear All</button>
+              </div>
+              <ul class="notification-list" id="notification-list-container">
+                <!-- Notifications populated by JS -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Wrapper -->
+      <div class="view-container">
+        
+        <!-- ================= DASHBOARD VIEW ================= -->
+        <section class="view-pane active" id="dashboard-view">
+          <!-- Metric Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card card-gradient-purple">
+              <div class="metric-header">
+                <span>Registered Events</span>
+                <i data-lucide="calendar"></i>
+              </div>
+              <div class="metric-value" id="stats-registered-events">0</div>
+              <p class="metric-subtext">Upcoming workshops & programs</p>
+            </div>
+            <div class="metric-card card-gradient-blue">
+              <div class="metric-header">
+                <span>Joined Clubs</span>
+                <i data-lucide="users"></i>
+              </div>
+              <div class="metric-value" id="stats-joined-clubs">0</div>
+              <p class="metric-subtext">Active student communities</p>
+            </div>
+            <div class="metric-card card-gradient-green">
+              <div class="metric-header">
+                <span>Saved Items</span>
+                <i data-lucide="bookmark"></i>
+              </div>
+              <div class="metric-value" id="stats-saved-items">0</div>
+              <p class="metric-subtext">Bookmarked opportunities</p>
+            </div>
+            <div class="metric-card card-gradient-gold">
+              <div class="metric-header">
+                <span>Campus XP</span>
+                <i data-lucide="award"></i>
+              </div>
+              <div class="metric-value" id="stats-campus-points">120</div>
+              <p class="metric-subtext">XP earned via activities</p>
+            </div>
+          </div>
+
+          <!-- Main Dashboard Layout -->
+          <div class="dashboard-body">
+            <!-- Left Column: Pulse & Suggestions -->
+            <div class="dash-left">
+              <!-- Personalized Welcome Card -->
+              <div class="promo-card">
+                <div class="promo-content">
+                  <span class="promo-badge">NEW FEATURE</span>
+                  <h2>Weekly Hackathon Series!</h2>
+                  <p>Collaborate with students across departments and win awards. Registrations close in 2 days.</p>
+                  <button class="btn btn-primary btn-sm" id="promo-action-btn">Register Now</button>
+                </div>
+                <div class="promo-graphic">
+                  <i data-lucide="terminal" class="giant-icon"></i>
+                </div>
+              </div>
+
+              <!-- Suggested Horizontal Scroll -->
+              <div class="section-container">
+                <div class="section-header">
+                  <h2>Recommended for You</h2>
+                  <span class="action-link" id="view-all-recs">View Discover</span>
+                </div>
+                <div class="horizontal-scroll" id="recommended-scroller">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Timeline & Live Feed -->
+            <div class="dash-right">
+              <!-- Real-Time Activity Feed -->
+              <div class="live-feed-card">
+                <div class="feed-header">
+                  <div class="feed-title">
+                    <span class="pulse-indicator"></span>
+                    <h2>Campus Live Activity</h2>
+                  </div>
+                  <span class="live-status">LIVE</span>
+                </div>
+                <div class="activity-timeline" id="live-timeline-feed">
+                  <!-- Populated dynamically by JS Simulated Ticker -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= DISCOVER VIEW ================= -->
+        <section class="view-pane" id="discover-view">
+          <div class="search-filter-wrapper">
+            <!-- Search & Filter Controls -->
+            <div class="search-bar-row">
+              <div class="search-input-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="discover-search-input" placeholder="Search events, communities, internships..." />
+                <button class="clear-search-btn" id="clear-search-btn" style="display: none;">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+              
+              <div class="sort-wrapper">
+                <label for="discover-sort-select" class="sort-label">Sort By:</label>
+                <select id="discover-sort-select" class="styled-select">
+                  <option value="upcoming">Soonest First</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="newest">Recently Added</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs-container">
+              <div class="filter-tabs" id="discover-type-filters">
+                <button class="tab-filter active" data-filter="all">All</button>
+                <button class="tab-filter" data-filter="event">Events</button>
+                <button class="tab-filter" data-filter="internship">Internships</button>
+                <button class="tab-filter" data-filter="competition">Competitions</button>
+              </div>
+
+              <!-- Filter Pills (Tags) -->
+              <div class="filter-tags" id="discover-tag-filters">
+                <button class="tag-pill" data-tag="Tech">Coding</button>
+                <button class="tag-pill" data-tag="Design">Design</button>
+                <button class="tag-pill" data-tag="Marketing">Marketing</button>
+                <button class="tag-pill" data-tag="Remote">Remote</button>
+                <button class="tag-pill" data-tag="Paid">Paid</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="cards-grid" id="discover-grid-container">
+            <!-- Filled by JS -->
+          </div>
+        </section>
+
+        <!-- ================= COMMUNITIES VIEW ================= -->
+        <section class="view-pane" id="communities-view">
+          <div class="communities-layout">
+            <!-- Left Side: Community List -->
+            <div class="community-list-panel">
+              <div class="panel-header">
+                <h2>Campus Groups</h2>
+                <p>Join communities to chat and collaborate</p>
+              </div>
+              <div class="community-grid-list" id="communities-list-container">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <!-- Right Side: Discussion Board Chat -->
+            <div class="discussion-board-panel" id="discussion-board">
+              <!-- Selected Community Chat State -->
+              <div class="chat-active-state" id="chat-active-state">
+                <div class="chat-header">
+                  <div class="chat-group-info">
+                    <div class="chat-group-avatar" id="chat-group-avatar">A</div>
+                    <div>
+                      <h3 id="chat-group-name">Community Name</h3>
+                      <span id="chat-group-members">245 Members</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" id="chat-join-toggle">Join Group</button>
+                </div>
+
+                <div class="chat-messages-container" id="chat-messages-box">
+                  <!-- Filled dynamically by JS -->
+                </div>
+
+                <!-- Chat Input (Visible only if joined or allowed) -->
+                <div class="chat-input-bar">
+                  <input type="text" id="chat-message-input" placeholder="Type your message to the group..." disabled />
+                  <button class="btn btn-primary" id="chat-send-btn" disabled>
+                    <i data-lucide="send"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Unselected State -->
+              <div class="chat-empty-state" id="chat-empty-state">
+                <i data-lucide="messages-square" class="chat-empty-icon"></i>
+                <h3>Select a Campus Group</h3>
+                <p>Click on any community from the list to view discussions, announcements, and connect with peers.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= AI GUIDE CHATBOT VIEW ================= -->
+        <section class="view-pane" id="ai-guide-view">
+          <div class="ai-guide-layout">
+            <!-- Left Side: Context Panel -->
+            <div class="ai-context-panel">
+              <div class="panel-header">
+                <h2>AI Assistant Context</h2>
+                <p>Profile metrics scanned by the chatbot</p>
+              </div>
+              
+              <div class="context-card">
+                <h3>Student Profile</h3>
+                <div class="context-item">
+                  <span class="context-label">Name:</span>
+                  <span class="context-val" id="ai-ctx-name">Ayush Gupta</span>
+                </div>
+                <div class="context-item">
+                  <span class="context-label">XP Level:</span>
+                  <span class="context-val" id="ai-ctx-xp">120 XP</span>
+                </div>
+                <div class="context-item">
+                  <span class="context-label">Registrations:</span>
+                  <span class="context-val" id="ai-ctx-reg">0 Active</span>
+                </div>
+                <div class="context-item">
+                  <span class="context-label">Interests Scanned:</span>
+                  <div class="context-tags" id="ai-ctx-interests">
+                    <span class="tag-label">Coding</span>
+                    <span class="tag-label">Design</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chatbot-hint-card">
+                <i data-lucide="info" style="width: 20px; height: 20px; color: var(--primary); flex-shrink:0;"></i>
+                <p>Our AI analyzes indexed opportunities and coordinates recommendations matching your dashboard checkpoints.</p>
+              </div>
+            </div>
+
+            <!-- Right Side: Chat System -->
+            <div class="ai-chat-panel">
+              <div class="chat-header">
+                <div class="chat-group-info">
+                  <div class="ai-bot-avatar">
+                    <i data-lucide="sparkles"></i>
+                  </div>
+                  <div>
+                    <h3>Campus AI Guide</h3>
+                    <span class="online-status-text">
+                      <span class="online-dot"></span>
+                      Online Assistant
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Message Log -->
+              <div class="chat-messages-container" id="ai-chat-messages-box">
+                <!-- Populated dynamically by JS -->
+              </div>
+
+              <!-- Prompt Quick Suggestions -->
+              <div class="prompt-suggestions" id="ai-prompt-suggestions">
+                <button class="prompt-pill" data-query="Recommend a contest to participate in">🏆 Recommend Contest</button>
+                <button class="prompt-pill" data-query="Find paid design internships">💼 Design Internships</button>
+                <button class="prompt-pill" data-query="How can I earn more XP?">✨ How to earn XP</button>
+              </div>
+
+              <!-- Input bar -->
+              <div class="chat-input-bar">
+                <input type="text" id="ai-chat-message-input" placeholder="Ask the Campus AI about events, clubs, or internships..." />
+                <button class="btn btn-primary" id="ai-chat-send-btn">
+                  <i data-lucide="send"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= COMPETITION LEADERBOARD VIEW ================= -->
+        <section class="view-pane" id="leaderboard-view">
+          <div class="leaderboard-heading-box">
+            <h2>Campus Leaderboard</h2>
+            <p>Earn XP points by registering for workshops, joining communities, and publishing opportunities.</p>
+          </div>
+
+          <!-- Podium Pedestal top 3 -->
+          <div class="podium-container" id="leaderboard-podium">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Rank table for 4+ -->
+          <div class="ranking-table-card">
+            <table class="ranking-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Student Name</th>
+                  <th>Events RSVPs</th>
+                  <th>Clubs Joined</th>
+                  <th class="align-right">XP Points</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-rows">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= MY SPACE (SAVED) VIEW ================= -->
+        <section class="view-pane" id="saved-view">
+          <div class="myspace-layout">
+            <!-- Left side: Saved and Registered Tab-content -->
+            <div class="myspace-main">
+              <div class="myspace-tabs">
+                <button class="myspace-tab-btn active" data-subtab="registered">My Registrations</button>
+                <button class="myspace-tab-btn" data-subtab="bookmarked">Bookmarked Opportunities</button>
+              </div>
+
+              <!-- Registered Subtab -->
+              <div class="myspace-subview active" id="myspace-registered-subview">
+                <div class="registered-list" id="registered-list-container">
+                  <!-- Filled by JS -->
+                </div>
+              </div>
+
+              <!-- Bookmarked Subtab -->
+              <div class="myspace-subview" id="myspace-bookmarked-subview">
+                <div class="cards-grid" id="bookmarked-list-container">
+                  <!-- Filled by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right side: Onboarding Progress & Profile Card -->
+            <div class="myspace-sidebar">
+              <div class="profile-card-large">
+                <div class="profile-bg-gradient"></div>
+                <div class="profile-details-large">
+                  <div class="avatar-large-placeholder" id="my-profile-avatar-large">A</div>
+                  <h2 id="my-profile-name">Ayush Gupta</h2>
+                  <p class="profile-email" id="my-profile-email">ayush.gupta@campus.edu</p>
+                  <span class="badge badge-gold">Student Explorer</span>
+                </div>
+                <div class="profile-stats-mini">
+                  <div class="mini-stat">
+                    <span class="mini-val" id="my-stats-events">0</span>
+                    <span class="mini-label">Events</span>
+                  </div>
+                  <div class="mini-stat">
+                    <span class="mini-val" id="my-stats-points">120</span>
+                    <span class="mini-label">XP Points</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="progress-card">
+                <h3>Campus Profile Checklist</h3>
+                <p class="progress-sub">Complete tasks to earn extra campus XP!</p>
+                <div class="progress-bar-wrapper">
+                  <div class="progress-track">
+                    <div class="progress-fill" id="checklist-progress-bar" style="width: 0%;"></div>
+                  </div>
+                  <span class="progress-percentage" id="checklist-progress-percent">0%</span>
+                </div>
+                <ul class="checklist-items" id="checklist-items-container">
+                  <li class="checklist-item" data-task="join-community">
+                    <input type="checkbox" id="task-join" disabled />
+                    <label for="task-join">Join 1 Campus Community (+50 XP)</label>
+                  </li>
+                  <li class="checklist-item" data-task="register-event">
+                    <input type="checkbox" id="task-register" disabled />
+                    <label for="task-register">Register for your first Event (+50 XP)</label>
+                  </li>
+                  <li class="checklist-item" data-task="admin-sim">
+                    <input type="checkbox" id="task-sim" disabled />
+                    <label for="task-sim">Simulate a registration in Admin Hub (+20 XP)</label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= ADMIN HUB VIEW ================= -->
+        <section class="view-pane" id="admin-view">
+          <div class="admin-grid">
+            <!-- Control center card -->
+            <div class="admin-card">
+              <h2>Real-Time Simulation Deck</h2>
+              <p class="admin-card-desc">Simulate other active students registering, chatting, or joining communities to trigger immediate global state changes and database updates.</p>
+              
+              <div class="simulator-buttons">
+                <button class="btn btn-secondary sim-btn" data-action="sim-register">
+                  <i data-lucide="user-plus"></i>
+                  <span>Simulate Random Student RSVP</span>
+                </button>
+                <button class="btn btn-secondary sim-btn" data-action="sim-post">
+                  <i data-lucide="message-square"></i>
+                  <span>Simulate Community Discussion Post</span>
+                </button>
+                <button class="btn btn-secondary sim-btn" data-action="sim-event">
+                  <i data-lucide="bell"></i>
+                  <span>Simulate Live Urgent Announcement</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Create opportunity card -->
+            <div class="admin-card">
+              <h2>Publish New Opportunity</h2>
+              <p class="admin-card-desc">Instantly inject a new opportunity into the live search index. It will be immediately saved to the SQLite database and shown on students' dashboards.</p>
+              
+              <form class="admin-form" id="create-event-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new-title">Opportunity Title *</label>
+                    <input type="text" id="new-title" placeholder="e.g. Google DSC Hackathon" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="new-type">Type *</label>
+                    <select id="new-type" required>
+                      <option value="event">Campus Event</option>
+                      <option value="internship">Internship / Job Role</option>
+                      <option value="competition">Competition / Contest</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new-organizer">Organizer *</label>
+                    <input type="text" id="new-organizer" placeholder="e.g. ACM Student Chapter" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="new-date">Date / Deadline *</label>
+                    <input type="date" id="new-date" required />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new-tags">Tags (Comma-separated)</label>
+                    <input type="text" id="new-tags" placeholder="e.g. Tech, Coding, Design" />
+                  </div>
+                  <div class="form-group">
+                    <label for="new-location">Location / Location Link</label>
+                    <input type="text" id="new-location" placeholder="e.g. Audi 2 / Remote" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new-desc">Detailed Description *</label>
+                    <textarea id="new-desc" rows="3" placeholder="Tell students about the rules, rewards, and details..." required></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="new-url">Official Registration URL *</label>
+                    <input type="url" id="new-url" placeholder="e.g. https://forms.gle/..." required />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i data-lucide="plus-circle"></i>
+                  <span>Publish Opportunity Live</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail Information Overlay Modal -->
+  <div class="modal-overlay" id="opportunity-modal">
+    <div class="modal-container">
+      <button class="modal-close" id="modal-close-btn" aria-label="Close modal">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="modal-body" id="modal-content-area">
+        <!-- JS fills detail contents here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Submission Verification Confirmation Modal -->
+  <div class="modal-overlay" id="verification-confirm-modal">
+    <div class="modal-container" style="max-width: 460px;">
+      <div class="modal-body" style="text-align: center; padding: 40px 32px;">
+        <div class="verify-icon-wrapper">
+          <i data-lucide="external-link"></i>
+        </div>
+        <h2 class="modal-title" style="margin: 16px 0 8px;">Submit Registration Form</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px;">
+          We have opened the official application form in a new browser tab. Once you complete and submit the external form, confirm below to secure your RSVP inside CampusConnect and claim your reward!
+        </p>
+        
+        <div class="verify-badge-reward">
+          <i data-lucide="award"></i>
+          <span>Earn +50 XP Reward</span>
+        </div>
+
+        <div class="modal-actions" style="justify-content: center; gap: 16px; margin-top: 24px; width: 100%;">
+          <button class="btn btn-secondary" id="verify-modal-cancel-btn" style="flex: 1;">Cancel</button>
+          <button class="btn btn-primary" id="verify-modal-confirm-btn" style="flex: 1;">Confirm Submission</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Icons Loader CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="app.js"></script>
+</body>
+</html>
